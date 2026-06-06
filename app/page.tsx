@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import AIAssistant from "./components/AIAssistant";
 import AIAgents from "./components/AIAgents";
 import CRM from "./components/CRM";
 import Dashboard from "./components/Dashboard";
@@ -10,16 +11,18 @@ import Portal from "./components/Portal";
 import Projects from "./components/Projects";
 import { Proposals } from "./components/Proposals";
 import Sidebar, { MobileMenuButton } from "./components/Sidebar";
-import { copy, getModule, type Locale, type ModuleId } from "./components/content";
+import { copy, getModule, roles, type Locale, type ModuleId } from "./components/content";
 
 export default function Home() {
   const [activeModule, setActiveModule] = useState<ModuleId>("dashboard");
   const [locale, setLocale] = useState<Locale>("en");
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [activeRole, setActiveRole] = useState(1);
 
   const active = useMemo(() => getModule(activeModule), [activeModule]);
   const c = copy[locale];
   const isArabic = locale === "ar";
+  const roleLabel = roles[locale][activeRole];
 
   const renderModule = () => {
     switch (activeModule) {
@@ -77,6 +80,21 @@ export default function Home() {
                 </div>
               </div>
               <div className="hidden items-center gap-2 md:flex">
+                <label className="sr-only" htmlFor="role-selector">
+                  {isArabic ? "الدور" : "Role"}
+                </label>
+                <select
+                  id="role-selector"
+                  value={activeRole}
+                  onChange={(event) => setActiveRole(Number(event.target.value))}
+                  className="rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm font-semibold text-neutral-700 outline-none transition-colors hover:bg-neutral-50 focus:border-neutral-400"
+                >
+                  {roles[locale].map((role, index) => (
+                    <option key={role} value={index}>
+                      {role}
+                    </option>
+                  ))}
+                </select>
                 <span className="rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-xs font-semibold text-neutral-600">
                   {c.operator}
                 </span>
@@ -93,6 +111,7 @@ export default function Home() {
           <main>{renderModule()}</main>
         </div>
       </div>
+      <AIAssistant locale={locale} activeModule={activeModule} activeRole={roleLabel} />
     </div>
   );
 }

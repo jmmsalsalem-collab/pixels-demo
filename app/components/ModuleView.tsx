@@ -11,7 +11,7 @@ import {
   PanelRightOpen,
   ShieldCheck,
 } from "lucide-react";
-import { copy, getModule, moduleRecords, type Locale, type ModuleId } from "./content";
+import { copy, getModule, moduleDemos, moduleRecords, type Locale, type ModuleId } from "./content";
 
 interface ModuleViewProps {
   id: ModuleId;
@@ -22,6 +22,7 @@ const stageValues = [34, 68, 92];
 
 export default function ModuleView({ id, locale }: ModuleViewProps) {
   const moduleMeta = getModule(id);
+  const demo = moduleDemos[id];
   const c = copy[locale];
   const records = moduleRecords[id][locale];
   const isArabic = locale === "ar";
@@ -37,13 +38,13 @@ export default function ModuleView({ id, locale }: ModuleViewProps) {
 
   const actionText = useMemo(() => {
     if (selectedApproved) {
-      return locale === "ar" ? "تم اعتماد السجل وإضافته إلى سجل التدقيق." : "Record approved and added to the audit trail.";
+      return locale === "ar"
+        ? `تم اعتماد السجل وإضافته إلى سجل التدقيق. ${demo.artifact[locale]}`
+        : `Record approved and added to the audit trail. ${demo.artifact[locale]}`;
     }
 
-    return locale === "ar"
-      ? "جاهز لمراجعة المدير أو مشاركة تحديث مختصر مع العميل."
-      : "Ready for manager review or a concise client-facing update.";
-  }, [locale, selectedApproved]);
+    return demo.artifact[locale];
+  }, [demo.artifact, locale, selectedApproved]);
 
   function toggleApproval() {
     setApprovedRecords((current) =>
@@ -75,13 +76,13 @@ export default function ModuleView({ id, locale }: ModuleViewProps) {
               {moduleMeta.title[locale]}
             </h1>
             <p className="mt-4 max-w-2xl text-sm leading-6 text-neutral-600 sm:text-base">
-              {moduleMeta.description[locale]}
+              {moduleMeta.description[locale]} {demo.purpose[locale]}
             </p>
           </div>
           <div className="grid grid-cols-3 gap-2 sm:min-w-[360px]">
-            <MiniStat label={locale === "ar" ? "النشاط" : "Activity"} value={`${activityCount}`} />
-            <MiniStat label={locale === "ar" ? "التقدم" : "Progress"} value={`${progress}%`} />
-            <MiniStat label={locale === "ar" ? "الموافقات" : "Approvals"} value={`${approvedRecords.length}/3`} />
+            {demo.metrics[locale].map((metric) => (
+              <MiniStat key={metric.label} label={metric.label} value={metric.value} />
+            ))}
           </div>
         </div>
       </section>
@@ -147,6 +148,25 @@ export default function ModuleView({ id, locale }: ModuleViewProps) {
 
         <div className="space-y-6">
           <div className="rounded-xl border border-neutral-200 bg-white p-5 shadow-sm">
+            <div className="flex items-center justify-between gap-3">
+              <h2 className="text-base font-semibold text-neutral-950">
+                {locale === "ar" ? "متطلبات PRD المغطاة" : "PRD requirements covered"}
+              </h2>
+              <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700">
+                {locale === "ar" ? "جاهز للعرض" : "Demo-ready"}
+              </span>
+            </div>
+            <div className="mt-4 grid gap-2">
+              {demo.capabilities[locale].map((capability) => (
+                <div key={capability} className="flex items-start gap-2 rounded-lg bg-neutral-50 px-3 py-2">
+                  <CheckCircle2 size={15} className="mt-0.5 shrink-0 text-emerald-600" />
+                  <span className="text-sm leading-5 text-neutral-700">{capability}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="rounded-xl border border-neutral-200 bg-white p-5 shadow-sm">
             <div className="flex items-start justify-between gap-4">
               <div>
                 <h2 className="text-base font-semibold text-neutral-950">{selectedName}</h2>
@@ -154,18 +174,19 @@ export default function ModuleView({ id, locale }: ModuleViewProps) {
                   {locale === "ar" ? "مساحة عمل تفاعلية للعرض التجريبي" : "Interactive workspace for the client demo"}
                 </p>
               </div>
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-neutral-100 px-2.5 py-1 text-xs font-semibold text-neutral-700">
-                <PanelRightOpen size={13} />
-                {status}
-              </span>
+              <div className="flex flex-col items-end gap-2">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-neutral-100 px-2.5 py-1 text-xs font-semibold text-neutral-700">
+                  <PanelRightOpen size={13} />
+                  {status}
+                </span>
+                <span className="text-xs text-neutral-500">
+                  {locale === "ar" ? `${activityCount} تفاعلات` : `${activityCount} demo interactions`}
+                </span>
+              </div>
             </div>
 
             <div className="mt-5 space-y-4">
-              {[
-                locale === "ar" ? "مراجعة داخلية" : "Internal review",
-                locale === "ar" ? "موافقة الإدارة" : "Management approval",
-                locale === "ar" ? "تحديث العميل" : "Client update",
-              ].map((stage, index) => {
+              {demo.workflow[locale].slice(0, 5).map((stage, index) => {
                 const complete = progress >= (index + 1) * 30 || selectedApproved;
 
                 return (
@@ -206,23 +227,21 @@ export default function ModuleView({ id, locale }: ModuleViewProps) {
                   ? locale === "ar"
                     ? "إلغاء الاعتماد"
                     : "Undo approval"
-                  : locale === "ar"
-                    ? "اعتماد السجل"
-                    : "Approve record"}
+                  : demo.primaryAction[locale]}
               </button>
               <button
                 className="inline-flex items-center justify-center gap-2 rounded-lg border border-neutral-200 px-4 py-2.5 text-sm font-semibold text-neutral-700 transition-colors hover:bg-neutral-50"
                 onClick={addClientNote}
               >
                 <MessageSquareText size={16} />
-                {locale === "ar" ? "تجهيز تحديث العميل" : "Prepare client update"}
+                {demo.secondaryAction[locale]}
               </button>
             </div>
           </div>
 
           <div className="rounded-xl border border-neutral-200 bg-white p-5 shadow-sm">
             <h2 className="text-base font-semibold text-neutral-950">
-              {locale === "ar" ? "معاينة العميل" : "Client preview"}
+              {demo.artifactTitle[locale]}
             </h2>
             <div className="mt-4 rounded-lg border border-neutral-200 bg-neutral-50 p-4">
               <div className="flex items-center gap-2 text-sm font-semibold text-neutral-900">

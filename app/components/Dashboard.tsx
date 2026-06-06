@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { AlertTriangle, ArrowUpRight, CheckCircle2, Sparkles } from "lucide-react";
-import { boardPriorities, copy, revenueData, type Locale, type ModuleId } from "./content";
+import { boardPriorities, copy, revenueData, roadmapPhases, successMetrics, type Locale, type ModuleId } from "./content";
 
 export default function Dashboard({
   locale,
@@ -188,6 +188,68 @@ export default function Dashboard({
         <OperatingPanel title={c.sections.pipeline} status={c.statuses.healthy} tone="green" locale={locale} />
         <OperatingPanel title={c.sections.activity} status={c.statuses.watch} tone="amber" locale={locale} />
         <OperatingPanel title={c.sections.governance} status={c.statuses.active} tone="neutral" locale={locale} />
+      </section>
+
+      <section className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
+        <div className="rounded-xl border border-neutral-200 bg-white p-5 shadow-sm">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <h2 className="text-base font-semibold text-neutral-950">
+                {locale === "ar" ? "خارطة الطريق حسب PRD" : "PRD implementation roadmap"}
+              </h2>
+              <p className="mt-1 text-sm text-neutral-500">
+                {locale === "ar" ? "سبع مراحل، 22 أسبوعاً، جاهزة للنقاش مع العميل" : "Seven phases, 22 weeks, ready for client discussion"}
+              </p>
+            </div>
+            <span className="rounded-full bg-neutral-100 px-3 py-1 text-xs font-semibold text-neutral-700">
+              {locale === "ar" ? "v2.0" : "v2.0"}
+            </span>
+          </div>
+          <div className="mt-5 grid gap-3 md:grid-cols-2">
+            {roadmapPhases[locale].map((phase, index) => (
+              <button
+                key={phase}
+                className="group flex items-start gap-3 rounded-lg border border-neutral-200 bg-neutral-50 p-3 text-start transition-colors hover:border-neutral-400 hover:bg-white"
+                onClick={() =>
+                  onOpenModule(
+                    index === 0
+                      ? "crm"
+                      : index === 1
+                        ? "projects"
+                        : index === 2
+                          ? "ai-agents"
+                          : index === 3
+                            ? "portal"
+                            : index === 4
+                              ? "financials"
+                              : index === 5
+                                ? "media"
+                                : "reports",
+                  )
+                }
+              >
+                <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-white text-xs font-semibold text-neutral-700 ring-1 ring-neutral-200 group-hover:bg-neutral-950 group-hover:text-white">
+                  {index + 1}
+                </span>
+                <span className="text-sm leading-6 text-neutral-700">{phase}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="rounded-xl border border-neutral-200 bg-white p-5 shadow-sm">
+          <h2 className="text-base font-semibold text-neutral-950">
+            {locale === "ar" ? "معايير نجاح العرض" : "Success metrics demo covers"}
+          </h2>
+          <div className="mt-5 space-y-3">
+            {successMetrics[locale].map((metric) => (
+              <div key={metric} className="flex gap-3 rounded-lg bg-neutral-50 px-3 py-3">
+                <CheckCircle2 size={16} className="mt-0.5 shrink-0 text-emerald-600" />
+                <p className="text-sm leading-6 text-neutral-700">{metric}</p>
+              </div>
+            ))}
+          </div>
+        </div>
       </section>
     </div>
   );
