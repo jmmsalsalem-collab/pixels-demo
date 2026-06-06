@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { DM_Sans, Playfair_Display } from "next/font/google";
+import { DM_Sans, Noto_Naskh_Arabic, Playfair_Display } from "next/font/google";
 import "./globals.css";
 
 const display = Playfair_Display({
@@ -14,9 +14,15 @@ const body = DM_Sans({
   weight: ["300", "400", "500", "600"],
 });
 
+const arabic = Noto_Naskh_Arabic({
+  subsets: ["arabic"],
+  variable: "--font-arabic",
+  weight: ["400", "500", "600", "700"],
+});
+
 export const metadata: Metadata = {
-  title: "Pixels Smart Platform",
-  description: "AI-Powered CRM, Task Management & Client Portal",
+  title: "Pixels Enterprise Operating Platform",
+  description: "A bilingual executive operating platform for CRM, projects, finance, AI workflows, and client delivery.",
 };
 
 export default function RootLayout({
@@ -25,8 +31,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${display.variable} ${body.variable}`}>
-      <body className="bg-[#0A0A0A] text-[#E8E8E8] antialiased">
+    <html lang="en" className={`${display.variable} ${body.variable} ${arabic.variable}`}>
+      <body>
         {children}
       </body>
     </html>

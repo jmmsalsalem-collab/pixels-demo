@@ -1,165 +1,166 @@
 "use client";
-import { Users, FolderOpen, DollarSign, AlertCircle, Sparkles, ArrowUpRight } from "lucide-react";
-import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, BarChart, Bar } from "recharts";
 
-const revenueData = [
-  { month: "Jan", revenue: 42000, budget: 50000 },
-  { month: "Feb", revenue: 58000, budget: 55000 },
-  { month: "Mar", revenue: 51000, budget: 60000 },
-  { month: "Apr", revenue: 73000, budget: 65000 },
-  { month: "May", revenue: 68000, budget: 70000 },
-  { month: "Jun", revenue: 89000, budget: 75000 },
-];
+import { AlertTriangle, ArrowUpRight, CheckCircle2, Sparkles } from "lucide-react";
+import { boardPriorities, copy, revenueData, type Locale } from "./content";
 
-const projectsData = [
-  { name: "Gaming", count: 8 },
-  { name: "Architectural", count: 5 },
-  { name: "Living Room", count: 4 },
-  { name: "Mixed", count: 2 },
-];
+export default function Dashboard({ locale }: { locale: Locale }) {
+  const c = copy[locale];
 
-const recentProjects = [
-  { name: "Al-Nasser Gaming Suite", type: "Gaming Room", status: "In Progress", progress: 72, budget: "KD 18,500" },
-  { name: "Salmiya Villa Renovation", type: "Architectural", status: "Review", progress: 90, budget: "KD 45,000" },
-  { name: "Jabriya Living Room", type: "Living Room", status: "Design", progress: 35, budget: "KD 8,200" },
-  { name: "Rumaithiya Gaming Den", type: "Gaming Room", status: "Procurement", progress: 55, budget: "KD 22,000" },
-];
-
-const statusColor: Record<string, string> = {
-  "In Progress": "bg-blue-500/20 text-blue-400",
-  "Review": "bg-yellow-500/20 text-yellow-400",
-  "Design": "bg-purple-500/20 text-purple-400",
-  "Procurement": "bg-orange-500/20 text-orange-400",
-};
-
-export default function Dashboard() {
   return (
-    <div className="p-6 space-y-6">
-      {/* Header */}
-      <div className="fade-up fade-up-1">
-        <h1 className="font-display text-2xl font-semibold text-[#E8E8E8]">Good morning, Admin</h1>
-        <p className="text-sm text-[#666] mt-1">Here&apos;s what&apos;s happening at Pixels today — Sunday, June 2026</p>
-      </div>
-
-      {/* AI Insight */}
-      <div className="fade-up fade-up-1 bg-gradient-to-r from-[#C9A84C11] to-[#C9A84C05] border border-[#C9A84C33] rounded-xl p-4 flex items-start gap-3">
-        <div className="w-8 h-8 rounded-lg gold-gradient flex items-center justify-center flex-shrink-0 mt-0.5">
-          <Sparkles size={14} className="text-black" />
-        </div>
-        <div>
-          <div className="text-xs font-semibold text-[#C9A84C] mb-1">AI Insight — Claude</div>
-          <p className="text-sm text-[#C8C8C8] leading-relaxed">3 projects are approaching their payment milestones this week. Al-Nasser Gaming Suite is 72% complete — consider sending a progress report to the client. Revenue is up 31% vs. last month.</p>
-        </div>
-      </div>
-
-      {/* Stats */}
-      <div className="grid grid-cols-4 gap-4 fade-up fade-up-2">
-        {[
-          { label: "Active Projects", value: "19", sub: "+3 this month", icon: FolderOpen, color: "text-blue-400" },
-          { label: "Total Clients", value: "47", sub: "+5 this month", icon: Users, color: "text-green-400" },
-          { label: "Monthly Revenue", value: "KD 89K", sub: "+31% vs last month", icon: DollarSign, color: "text-[#C9A84C]" },
-          { label: "Tasks Overdue", value: "4", sub: "Needs attention", icon: AlertCircle, color: "text-red-400" },
-        ].map((stat) => {
-          const Icon = stat.icon;
-          return (
-            <div key={stat.label} className="stat-card">
-              <div className="flex items-start justify-between mb-3">
-                <div className={`w-9 h-9 rounded-lg bg-[#1E1E1E] flex items-center justify-center ${stat.color}`}>
-                  <Icon size={16} />
-                </div>
-                <ArrowUpRight size={14} className="text-[#444]" />
-              </div>
-              <div className="text-2xl font-display font-semibold text-[#E8E8E8]">{stat.value}</div>
-              <div className="text-xs text-[#888] mt-1">{stat.label}</div>
-              <div className="text-[11px] text-[#555] mt-0.5">{stat.sub}</div>
+    <div className="space-y-6 p-4 sm:p-6 lg:p-8">
+      <section className="rounded-xl border border-neutral-200 bg-white p-5 shadow-sm">
+        <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
+          <div className="max-w-3xl">
+            <div className="mb-3 flex flex-wrap items-center gap-2">
+              <span className="rounded-full bg-neutral-950 px-3 py-1 text-xs font-semibold text-white">
+                {c.period}
+              </span>
+              <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+                {c.health}: 91%
+              </span>
             </div>
-          );
-        })}
-      </div>
+            <p className="text-sm font-semibold uppercase tracking-[0.22em] text-neutral-500">
+              {locale === "ar" ? "منصة بكسلز المؤسسية" : "Pixels Enterprise Platform"}
+            </p>
+            <h1 className="mt-3 text-3xl font-semibold tracking-tight text-neutral-950 sm:text-4xl">
+              {locale === "ar" ? "تشغيل احترافي للمبيعات والتنفيذ والعملاء" : "Professional command layer for sales, delivery, and client operations"}
+            </h1>
+            <p className="mt-4 max-w-2xl text-sm leading-6 text-neutral-600 sm:text-base">
+              {locale === "ar"
+                ? "واجهة تنفيذية واضحة لمراقبة الأداء والمخاطر والقرارات اليومية بدون ازدحام بصري أو محتوى تجريبي ضعيف."
+                : "A clean executive workspace for monitoring performance, risk, and daily decisions without noisy demo clutter."}
+            </p>
+          </div>
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <button className="rounded-lg bg-neutral-950 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-neutral-800">
+              {c.primaryAction}
+            </button>
+            <button className="rounded-lg border border-neutral-200 px-4 py-2.5 text-sm font-semibold text-neutral-700 transition-colors hover:bg-neutral-50">
+              {c.secondaryAction}
+            </button>
+          </div>
+        </div>
+      </section>
 
-      {/* Charts */}
-      <div className="grid grid-cols-3 gap-4 fade-up fade-up-3">
-        {/* Revenue */}
-        <div className="col-span-2 stat-card">
-          <div className="flex items-center justify-between mb-4">
+      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        {c.metrics.map((metric) => (
+          <div key={metric.label} className="rounded-xl border border-neutral-200 bg-white p-4 shadow-sm">
+            <div className="flex items-start justify-between gap-3">
+              <p className="text-sm font-medium text-neutral-500">{metric.label}</p>
+              <ArrowUpRight size={16} className="text-neutral-400" />
+            </div>
+            <p className="mt-3 text-3xl font-semibold tracking-tight text-neutral-950">{metric.value}</p>
+            <p className="mt-1 text-xs text-neutral-500">{metric.note}</p>
+          </div>
+        ))}
+      </section>
+
+      <section className="grid gap-6 xl:grid-cols-[1.4fr_0.8fr]">
+        <div className="rounded-xl border border-neutral-200 bg-white p-5 shadow-sm">
+          <div className="mb-5 flex items-start justify-between gap-4">
             <div>
-              <div className="text-sm font-semibold text-[#E8E8E8]">Revenue vs Budget</div>
-              <div className="text-xs text-[#666] mt-0.5">Last 6 months (KWD)</div>
+              <h2 className="text-base font-semibold text-neutral-950">{c.sections.revenue}</h2>
+              <p className="mt-1 text-sm text-neutral-500">
+                {locale === "ar" ? "أرقام شهرية بالألف دينار كويتي" : "Monthly figures in KWD thousands"}
+              </p>
             </div>
-            <div className="flex items-center gap-4 text-xs text-[#666]">
-              <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-[#C9A84C] inline-block" />Revenue</span>
-              <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-[#333] inline-block" />Budget</span>
+            <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
+              +11.8%
+            </span>
+          </div>
+          <div className="grid h-[292px] grid-cols-6 items-end gap-3 border-b border-neutral-200 pb-6">
+            {revenueData.map((item) => (
+              <div key={item.month} className="flex h-full min-w-0 flex-col justify-end gap-2">
+                <div className="relative flex flex-1 items-end justify-center rounded-lg bg-neutral-50 px-2">
+                  <div
+                    className="absolute bottom-0 w-2 rounded-t-full bg-neutral-300"
+                    style={{ height: `${Math.max(8, (item.plan / 600) * 100)}%` }}
+                  />
+                  <div
+                    className="relative w-6 rounded-t-md bg-neutral-950"
+                    style={{ height: `${Math.max(8, (item.revenue / 600) * 100)}%` }}
+                  />
+                </div>
+                <p className="truncate text-center text-xs font-medium text-neutral-500">{item.month}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="space-y-6">
+          <div className="rounded-xl border border-neutral-200 bg-white p-5 shadow-sm">
+            <div className="flex items-center gap-2">
+              <Sparkles size={17} className="text-neutral-900" />
+              <h2 className="text-base font-semibold text-neutral-950">{c.insightTitle}</h2>
+            </div>
+            <p className="mt-4 text-sm leading-6 text-neutral-600">{c.insight}</p>
+          </div>
+
+          <div className="rounded-xl border border-neutral-200 bg-white p-5 shadow-sm">
+            <h2 className="text-base font-semibold text-neutral-950">{c.sections.priorities}</h2>
+            <div className="mt-4 space-y-3">
+              {boardPriorities[locale].map((priority, index) => (
+                <div key={priority} className="flex gap-3">
+                  <div className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-neutral-100 text-xs font-semibold text-neutral-700">
+                    {index + 1}
+                  </div>
+                  <p className="text-sm leading-6 text-neutral-600">{priority}</p>
+                </div>
+              ))}
             </div>
           </div>
-          <ResponsiveContainer width="100%" height={180}>
-            <AreaChart data={revenueData}>
-              <defs>
-                <linearGradient id="goldGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#C9A84C" stopOpacity={0.2} />
-                  <stop offset="95%" stopColor="#C9A84C" stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <XAxis dataKey="month" tick={{ fill: "#555", fontSize: 11 }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fill: "#555", fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={(v) => `${v/1000}K`} />
-              <Tooltip contentStyle={{ background: "#161616", border: "1px solid #242424", borderRadius: 8, fontSize: 12 }} />
-              <Area type="monotone" dataKey="budget" stroke="#333" strokeWidth={1.5} fill="none" />
-              <Area type="monotone" dataKey="revenue" stroke="#C9A84C" strokeWidth={2} fill="url(#goldGrad)" />
-            </AreaChart>
-          </ResponsiveContainer>
         </div>
+      </section>
 
-        {/* Projects by type */}
-        <div className="stat-card">
-          <div className="text-sm font-semibold text-[#E8E8E8] mb-1">Projects by Type</div>
-          <div className="text-xs text-[#666] mb-4">Active only</div>
-          <ResponsiveContainer width="100%" height={180}>
-            <BarChart data={projectsData} layout="vertical">
-              <XAxis type="number" tick={{ fill: "#555", fontSize: 11 }} axisLine={false} tickLine={false} />
-              <YAxis dataKey="name" type="category" tick={{ fill: "#888", fontSize: 11 }} axisLine={false} tickLine={false} width={80} />
-              <Tooltip contentStyle={{ background: "#161616", border: "1px solid #242424", borderRadius: 8, fontSize: 12 }} />
-              <Bar dataKey="count" fill="#C9A84C" radius={[0, 4, 4, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
+      <section className="grid gap-6 xl:grid-cols-3">
+        <OperatingPanel title={c.sections.pipeline} status={c.statuses.healthy} tone="green" locale={locale} />
+        <OperatingPanel title={c.sections.activity} status={c.statuses.watch} tone="amber" locale={locale} />
+        <OperatingPanel title={c.sections.governance} status={c.statuses.active} tone="neutral" locale={locale} />
+      </section>
+    </div>
+  );
+}
+
+function OperatingPanel({
+  title,
+  status,
+  tone,
+  locale,
+}: {
+  title: string;
+  status: string;
+  tone: "green" | "amber" | "neutral";
+  locale: Locale;
+}) {
+  const Icon = tone === "amber" ? AlertTriangle : CheckCircle2;
+  const toneClass =
+    tone === "green"
+      ? "bg-emerald-50 text-emerald-700"
+      : tone === "amber"
+        ? "bg-amber-50 text-amber-700"
+        : "bg-neutral-100 text-neutral-700";
+
+  return (
+    <div className="rounded-xl border border-neutral-200 bg-white p-5 shadow-sm">
+      <div className="flex items-center justify-between gap-3">
+        <h3 className="text-base font-semibold text-neutral-950">{title}</h3>
+        <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${toneClass}`}>
+          <Icon size={13} />
+          {status}
+        </span>
       </div>
-
-      {/* Recent Projects */}
-      <div className="fade-up fade-up-4">
-        <div className="flex items-center justify-between mb-3">
-          <div className="text-sm font-semibold text-[#E8E8E8]">Active Projects</div>
-          <button className="text-xs text-[#C9A84C] hover:text-[#E8C96A] transition-colors">View all →</button>
-        </div>
-        <div className="bg-[#111] border border-[#1E1E1E] rounded-xl overflow-hidden">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-[#1E1E1E]">
-                {["Project", "Type", "Status", "Progress", "Budget"].map(h => (
-                  <th key={h} className="text-left px-4 py-3 text-[11px] font-medium text-[#555] uppercase tracking-wider">{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {recentProjects.map((p, i) => (
-                <tr key={i} className="border-b border-[#1A1A1A] hover:bg-[#161616] transition-colors cursor-pointer">
-                  <td className="px-4 py-3 text-sm font-medium text-[#E8E8E8]">{p.name}</td>
-                  <td className="px-4 py-3 text-xs text-[#888]">{p.type}</td>
-                  <td className="px-4 py-3">
-                    <span className={`px-2 py-1 rounded-full text-[11px] font-medium ${statusColor[p.status]}`}>{p.status}</span>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-2">
-                      <div className="flex-1 h-1.5 bg-[#1E1E1E] rounded-full overflow-hidden w-16">
-                        <div className="h-full bg-[#C9A84C] rounded-full" style={{ width: `${p.progress}%` }} />
-                      </div>
-                      <span className="text-xs text-[#888]">{p.progress}%</span>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 text-xs text-[#888]">{p.budget}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+      <div className="mt-5 space-y-3">
+        {[78, 64, 91].map((value, index) => (
+          <div key={value}>
+            <div className="mb-1 flex justify-between text-xs text-neutral-500">
+              <span>{locale === "ar" ? `مؤشر ${index + 1}` : `Control ${index + 1}`}</span>
+              <span>{value}%</span>
+            </div>
+            <div className="h-2 overflow-hidden rounded-full bg-neutral-100">
+              <div className="h-full rounded-full bg-neutral-950" style={{ width: `${value}%` }} />
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );

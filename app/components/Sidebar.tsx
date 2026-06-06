@@ -1,79 +1,125 @@
 "use client";
-import {
-  Users, FolderKanban, Bot, Globe, FileText,
-  DollarSign, Image, Truck, BarChart3, CheckSquare,
-  Building2, LayoutDashboard, ChevronRight, Sparkles
-} from "lucide-react";
 
-const modules = [
-  { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { id: "crm", label: "CRM", icon: Users },
-  { id: "projects", label: "Projects & Tasks", icon: FolderKanban },
-  { id: "ai-agents", label: "AI Agents", icon: Bot },
-  { id: "portal", label: "Client Portal", icon: Globe },
-  { id: "proposals", label: "Proposal Builder", icon: FileText },
-  { id: "financials", label: "Financial Tracking", icon: DollarSign },
-  { id: "media", label: "Media Gallery", icon: Image },
-  { id: "vendors", label: "Vendor Management", icon: Truck },
-  { id: "reports", label: "AI Reports", icon: BarChart3 },
-  { id: "templates", label: "Task Templates", icon: CheckSquare },
-  { id: "directory", label: "Employee Directory", icon: Building2 },
-];
+import { Menu, Search, ShieldCheck, Sparkles, X } from "lucide-react";
+import { copy, modules, type Locale, type ModuleId } from "./content";
 
-export default function Sidebar({ active, onSelect }: { active: string; onSelect: (id: string) => void }) {
+interface SidebarProps {
+  active: ModuleId;
+  locale: Locale;
+  mobileOpen: boolean;
+  onSelect: (id: ModuleId) => void;
+  onToggleLocale: () => void;
+  onCloseMobile: () => void;
+}
+
+export default function Sidebar({
+  active,
+  locale,
+  mobileOpen,
+  onSelect,
+  onToggleLocale,
+  onCloseMobile,
+}: SidebarProps) {
+  const c = copy[locale];
+  const isArabic = locale === "ar";
+
   return (
-    <aside className="w-[220px] flex-shrink-0 bg-[#0D0D0D] border-r border-[#1E1E1E] h-screen sticky top-0 flex flex-col overflow-hidden">
-      {/* Logo */}
-      <div className="px-5 py-5 border-b border-[#1E1E1E]">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg gold-gradient flex items-center justify-center">
-            <span className="text-black font-display font-bold text-sm">P</span>
+    <>
+      <div
+        className={`fixed inset-0 z-30 bg-black/50 backdrop-blur-sm transition-opacity lg:hidden ${
+          mobileOpen ? "opacity-100" : "pointer-events-none opacity-0"
+        }`}
+        onClick={onCloseMobile}
+      />
+      <aside
+        className={`fixed inset-y-0 z-40 flex w-[292px] flex-col border-neutral-200 bg-white text-neutral-950 shadow-2xl transition-transform duration-200 lg:static lg:z-auto lg:h-screen lg:translate-x-0 lg:border-e lg:shadow-none ${
+          isArabic ? "right-0" : "left-0"
+        } ${mobileOpen ? "translate-x-0" : isArabic ? "translate-x-full" : "-translate-x-full"}`}
+      >
+        <div className="flex items-center justify-between border-b border-neutral-200 px-5 py-5">
+          <div className="flex items-center gap-3">
+            <div className="grid h-10 w-10 place-items-center rounded-lg bg-neutral-950 text-sm font-bold text-white">
+              P
+            </div>
+            <div>
+              <p className="text-sm font-semibold tracking-[0.18em]">{c.appName}</p>
+              <p className="mt-0.5 text-xs text-neutral-500">{c.appSubtitle}</p>
+            </div>
           </div>
-          <div>
-            <div className="font-display font-semibold text-sm text-[#E8E8E8] leading-none">PIXELS</div>
-            <div className="text-[10px] text-[#555] mt-0.5 font-body">Smart Platform</div>
+          <button
+            className="grid h-9 w-9 place-items-center rounded-md border border-neutral-200 text-neutral-500 lg:hidden"
+            onClick={onCloseMobile}
+            aria-label="Close navigation"
+          >
+            <X size={16} />
+          </button>
+        </div>
+
+        <div className="space-y-3 border-b border-neutral-200 px-5 py-4">
+          <div className="flex items-center gap-2 rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2.5 text-sm text-neutral-500">
+            <Search size={15} />
+            <span className="truncate">{c.search}</span>
           </div>
-        </div>
-      </div>
-
-      {/* AI Badge */}
-      <div className="px-4 py-3">
-        <div className="flex items-center gap-2 bg-[#C9A84C11] border border-[#C9A84C22] rounded-lg px-3 py-2">
-          <Sparkles size={11} className="text-[#C9A84C]" />
-          <span className="text-[11px] text-[#C9A84C] font-body">Claude AI Powered</span>
-        </div>
-      </div>
-
-      {/* Nav */}
-      <nav className="flex-1 px-3 pb-4 overflow-y-auto space-y-0.5">
-        {modules.map((mod) => {
-          const Icon = mod.icon;
-          return (
+          <div className="grid grid-cols-2 gap-2">
             <button
-              key={mod.id}
-              className={`sidebar-link w-full text-left ${active === mod.id ? "active" : ""}`}
-              onClick={() => onSelect(mod.id)}
+              className="rounded-lg border border-neutral-200 px-3 py-2 text-xs font-semibold text-neutral-700 transition-colors hover:bg-neutral-50"
+              onClick={onToggleLocale}
             >
-              <Icon size={15} />
-              <span className="flex-1">{mod.label}</span>
-              {active === mod.id && <ChevronRight size={12} className="text-[#C9A84C]" />}
+              {c.localeSwitch}
             </button>
-          );
-        })}
-      </nav>
-
-      {/* User */}
-      <div className="px-4 py-4 border-t border-[#1E1E1E]">
-        <div className="flex items-center gap-3">
-          <div className="w-7 h-7 rounded-full bg-[#C9A84C22] border border-[#C9A84C44] flex items-center justify-center">
-            <span className="text-[11px] text-[#C9A84C] font-semibold">A</span>
-          </div>
-          <div className="min-w-0">
-            <div className="text-xs font-medium text-[#E8E8E8] truncate">Admin</div>
-            <div className="text-[10px] text-[#555]">System Admin</div>
+            <div className="flex items-center justify-center gap-1.5 rounded-lg bg-emerald-50 px-3 py-2 text-xs font-semibold text-emerald-700">
+              <ShieldCheck size={13} />
+              {c.live}
+            </div>
           </div>
         </div>
-      </div>
-    </aside>
+
+        <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
+          {modules.map((module) => {
+            const Icon = module.icon;
+            const selected = active === module.id;
+            return (
+              <button
+                key={module.id}
+                className={`group flex w-full items-center gap-3 rounded-lg border px-3 py-2.5 text-start text-sm transition-colors ${
+                  selected
+                    ? "border-neutral-950 bg-neutral-950 text-white"
+                    : "border-transparent text-neutral-600 hover:border-neutral-200 hover:bg-neutral-50 hover:text-neutral-950"
+                }`}
+                onClick={() => {
+                  onSelect(module.id);
+                  onCloseMobile();
+                }}
+              >
+                <Icon size={17} className={selected ? "text-white" : "text-neutral-400 group-hover:text-neutral-700"} />
+                <span className="min-w-0 flex-1 truncate">{module.label[locale]}</span>
+              </button>
+            );
+          })}
+        </nav>
+
+        <div className="border-t border-neutral-200 p-4">
+          <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-3">
+            <div className="mb-3 flex items-center gap-2 text-xs font-semibold text-neutral-700">
+              <Sparkles size={14} />
+              {c.aiBadge}
+            </div>
+            <p className="text-xs leading-relaxed text-neutral-500">{c.secure}</p>
+          </div>
+        </div>
+      </aside>
+    </>
+  );
+}
+
+export function MobileMenuButton({ onClick }: { onClick: () => void }) {
+  return (
+    <button
+      className="grid h-10 w-10 place-items-center rounded-lg border border-neutral-200 bg-white text-neutral-700 lg:hidden"
+      onClick={onClick}
+      aria-label="Open navigation"
+    >
+      <Menu size={18} />
+    </button>
   );
 }
