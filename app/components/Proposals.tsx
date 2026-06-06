@@ -1,8 +1,8 @@
 "use client";
 
-import ModuleView from "./ModuleView";
+import WorkspaceModule from "./WorkspaceModule";
 import type { Locale } from "./content";
 
 export function Proposals({ locale }: { locale: Locale }) {
-  return <ModuleView id="proposals" locale={locale} />;
+  return <WorkspaceModule id="proposals" locale={locale} />;
 }

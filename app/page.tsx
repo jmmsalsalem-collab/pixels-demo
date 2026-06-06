@@ -6,11 +6,12 @@ import AIAgents from "./components/AIAgents";
 import CRM from "./components/CRM";
 import Dashboard from "./components/Dashboard";
 import Financials from "./components/Financials";
-import { Directory, MediaGallery, Reports, Templates, Vendors } from "./components/Modules";
+import { Directory, MediaGallery, Reports, Templates } from "./components/Modules";
 import Portal from "./components/Portal";
 import Projects from "./components/Projects";
 import { Proposals } from "./components/Proposals";
 import Sidebar, { MobileMenuButton } from "./components/Sidebar";
+import Vendors from "./components/Vendors";
 import { copy, getModule, roles, type Locale, type ModuleId } from "./components/content";
 
 export default function Home() {
