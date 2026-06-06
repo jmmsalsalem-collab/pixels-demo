@@ -24,7 +24,7 @@ export default function Home() {
   const renderModule = () => {
     switch (activeModule) {
       case "dashboard":
-        return <Dashboard locale={locale} />;
+        return <Dashboard locale={locale} onOpenModule={setActiveModule} />;
       case "crm":
         return <CRM locale={locale} />;
       case "projects":
@@ -48,7 +48,7 @@ export default function Home() {
       case "directory":
         return <Directory locale={locale} />;
       default:
-        return <Dashboard locale={locale} />;
+        return <Dashboard locale={locale} onOpenModule={setActiveModule} />;
     }
   };
 

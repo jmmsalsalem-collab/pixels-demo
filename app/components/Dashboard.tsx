@@ -1,10 +1,40 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import { AlertTriangle, ArrowUpRight, CheckCircle2, Sparkles } from "lucide-react";
-import { boardPriorities, copy, revenueData, type Locale } from "./content";
+import { boardPriorities, copy, revenueData, type Locale, type ModuleId } from "./content";
 
-export default function Dashboard({ locale }: { locale: Locale }) {
+export default function Dashboard({
+  locale,
+  onOpenModule,
+}: {
+  locale: Locale;
+  onOpenModule: (module: ModuleId) => void;
+}) {
   const c = copy[locale];
+  const [reportReady, setReportReady] = useState(false);
+  const [riskFocus, setRiskFocus] = useState<"delivery" | "procurement">("delivery");
+  const currentRisk = useMemo(
+    () =>
+      riskFocus === "delivery"
+        ? {
+            title: locale === "ar" ? "مخاطر التنفيذ" : "Delivery risk",
+            note:
+              locale === "ar"
+                ? "مرحلتان تحتاجان قراراً قبل الخميس لتجنب تأخير التركيب."
+                : "Two milestones need a decision before Thursday to prevent installation delay.",
+            module: "projects" as ModuleId,
+          }
+        : {
+            title: locale === "ar" ? "مخاطر التوريد" : "Procurement exposure",
+            note:
+              locale === "ar"
+                ? "مورد واحد يؤثر على ثلاثة مشاريع بسبب مدة توريد أطول من الخطة."
+                : "One vendor affects three projects because lead time is running longer than plan.",
+            module: "vendors" as ModuleId,
+          },
+    [locale, riskFocus],
+  );
 
   return (
     <div className="space-y-6 p-4 sm:p-6 lg:p-8">
@@ -32,15 +62,44 @@ export default function Dashboard({ locale }: { locale: Locale }) {
             </p>
           </div>
           <div className="flex flex-col gap-2 sm:flex-row">
-            <button className="rounded-lg bg-neutral-950 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-neutral-800">
+            <button
+              className="rounded-lg bg-neutral-950 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-neutral-800"
+              onClick={() => setReportReady(true)}
+            >
               {c.primaryAction}
             </button>
-            <button className="rounded-lg border border-neutral-200 px-4 py-2.5 text-sm font-semibold text-neutral-700 transition-colors hover:bg-neutral-50">
+            <button
+              className="rounded-lg border border-neutral-200 px-4 py-2.5 text-sm font-semibold text-neutral-700 transition-colors hover:bg-neutral-50"
+              onClick={() => setRiskFocus((current) => (current === "delivery" ? "procurement" : "delivery"))}
+            >
               {c.secondaryAction}
             </button>
           </div>
         </div>
       </section>
+
+      {reportReady ? (
+        <section className="rounded-xl border border-blue-200 bg-blue-50 p-4 shadow-sm">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-sm font-semibold text-blue-900">
+                {locale === "ar" ? "تم تجهيز التقرير التنفيذي" : "Executive report prepared"}
+              </p>
+              <p className="mt-1 text-sm leading-6 text-blue-800">
+                {locale === "ar"
+                  ? "تم تجميع الأداء والمخاطر والأولويات في ملخص قابل للمراجعة."
+                  : "Performance, risks, and priorities have been assembled into a review-ready summary."}
+              </p>
+            </div>
+            <button
+              className="w-fit rounded-lg bg-blue-900 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-800"
+              onClick={() => onOpenModule("reports")}
+            >
+              {locale === "ar" ? "فتح التقارير" : "Open reports"}
+            </button>
+          </div>
+        </section>
+      ) : null}
 
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {c.metrics.map((metric) => (
@@ -94,10 +153,23 @@ export default function Dashboard({ locale }: { locale: Locale }) {
               <h2 className="text-base font-semibold text-neutral-950">{c.insightTitle}</h2>
             </div>
             <p className="mt-4 text-sm leading-6 text-neutral-600">{c.insight}</p>
+            <button
+              className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-neutral-900 hover:text-blue-700"
+              onClick={() => onOpenModule(currentRisk.module)}
+            >
+              {locale === "ar" ? "فتح الوحدة المرتبطة" : "Open related module"}
+              <ArrowUpRight size={14} />
+            </button>
           </div>
 
           <div className="rounded-xl border border-neutral-200 bg-white p-5 shadow-sm">
-            <h2 className="text-base font-semibold text-neutral-950">{c.sections.priorities}</h2>
+            <div className="flex items-start justify-between gap-3">
+              <h2 className="text-base font-semibold text-neutral-950">{c.sections.priorities}</h2>
+              <span className="rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-700">
+                {currentRisk.title}
+              </span>
+            </div>
+            <p className="mt-3 text-sm leading-6 text-neutral-600">{currentRisk.note}</p>
             <div className="mt-4 space-y-3">
               {boardPriorities[locale].map((priority, index) => (
                 <div key={priority} className="flex gap-3">

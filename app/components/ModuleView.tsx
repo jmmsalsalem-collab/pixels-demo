@@ -1,6 +1,16 @@
 "use client";
 
-import { ArrowUpRight, CheckCircle2, CircleDot, Clock3 } from "lucide-react";
+import { useMemo, useState } from "react";
+import {
+  ArrowUpRight,
+  CheckCircle2,
+  CircleDot,
+  Clock3,
+  FileCheck2,
+  MessageSquareText,
+  PanelRightOpen,
+  ShieldCheck,
+} from "lucide-react";
 import { copy, getModule, moduleRecords, type Locale, type ModuleId } from "./content";
 
 interface ModuleViewProps {
@@ -8,11 +18,50 @@ interface ModuleViewProps {
   locale: Locale;
 }
 
+const stageValues = [34, 68, 92];
+
 export default function ModuleView({ id, locale }: ModuleViewProps) {
   const moduleMeta = getModule(id);
   const c = copy[locale];
   const records = moduleRecords[id][locale];
   const isArabic = locale === "ar";
+  const [selectedRecord, setSelectedRecord] = useState(0);
+  const [approvedRecords, setApprovedRecords] = useState<number[]>([]);
+  const [activityCount, setActivityCount] = useState(4);
+  const [clientNote, setClientNote] = useState("");
+
+  const selectedName = records[selectedRecord] ?? records[0];
+  const selectedApproved = approvedRecords.includes(selectedRecord);
+  const progress = stageValues[selectedRecord % stageValues.length];
+  const status = selectedApproved ? c.statuses.approved : progress > 80 ? c.statuses.watch : c.statuses.active;
+
+  const actionText = useMemo(() => {
+    if (selectedApproved) {
+      return locale === "ar" ? "تم اعتماد السجل وإضافته إلى سجل التدقيق." : "Record approved and added to the audit trail.";
+    }
+
+    return locale === "ar"
+      ? "جاهز لمراجعة المدير أو مشاركة تحديث مختصر مع العميل."
+      : "Ready for manager review or a concise client-facing update.";
+  }, [locale, selectedApproved]);
+
+  function toggleApproval() {
+    setApprovedRecords((current) =>
+      current.includes(selectedRecord)
+        ? current.filter((record) => record !== selectedRecord)
+        : [...current, selectedRecord],
+    );
+    setActivityCount((current) => current + 1);
+  }
+
+  function addClientNote() {
+    setClientNote(
+      locale === "ar"
+        ? `تم تجهيز تحديث العميل لـ ${selectedName}`
+        : `Client update prepared for ${selectedName}`,
+    );
+    setActivityCount((current) => current + 1);
+  }
 
   return (
     <div className="space-y-6 p-4 sm:p-6 lg:p-8">
@@ -30,74 +79,160 @@ export default function ModuleView({ id, locale }: ModuleViewProps) {
             </p>
           </div>
           <div className="grid grid-cols-3 gap-2 sm:min-w-[360px]">
-            <MiniStat label={locale === "ar" ? "النشاط" : "Activity"} value="94%" />
-            <MiniStat label={locale === "ar" ? "المخاطر" : "Risk"} value={locale === "ar" ? "منخفض" : "Low"} />
-            <MiniStat label={locale === "ar" ? "المالك" : "Owner"} value={locale === "ar" ? "الإدارة" : "Ops"} />
+            <MiniStat label={locale === "ar" ? "النشاط" : "Activity"} value={`${activityCount}`} />
+            <MiniStat label={locale === "ar" ? "التقدم" : "Progress"} value={`${progress}%`} />
+            <MiniStat label={locale === "ar" ? "الموافقات" : "Approvals"} value={`${approvedRecords.length}/3`} />
           </div>
         </div>
       </section>
 
       <section className="grid gap-6 xl:grid-cols-[1fr_0.9fr]">
         <div className="rounded-xl border border-neutral-200 bg-white shadow-sm">
-          <div className="flex items-center justify-between border-b border-neutral-200 px-5 py-4">
+          <div className="flex items-center justify-between gap-4 border-b border-neutral-200 px-5 py-4">
             <div>
               <h2 className="text-base font-semibold text-neutral-950">{c.sections.records}</h2>
               <p className="mt-1 text-sm text-neutral-500">
-                {locale === "ar" ? "سجلات مختارة للمتابعة التنفيذية" : "Selected records for executive follow-up"}
+                {locale === "ar" ? "اختر سجلاً لترى التفاصيل والإجراءات" : "Select a record to view details and actions"}
               </p>
             </div>
-            <button className="rounded-lg border border-neutral-200 px-3 py-2 text-xs font-semibold text-neutral-700 hover:bg-neutral-50">
-              {locale === "ar" ? "عرض الكل" : "View all"}
-            </button>
+            <span className="rounded-full bg-neutral-100 px-3 py-1 text-xs font-semibold text-neutral-700">
+              {records.length} {locale === "ar" ? "سجلات" : "records"}
+            </span>
           </div>
           <div className="divide-y divide-neutral-100">
-            {records.map((record, index) => (
-              <div key={record} className="grid gap-4 px-5 py-4 md:grid-cols-[1fr_140px_120px] md:items-center">
-                <div className="flex items-center gap-3">
-                  <div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-neutral-100 text-sm font-semibold text-neutral-700">
-                    {index + 1}
+            {records.map((record, index) => {
+              const selected = selectedRecord === index;
+              const approved = approvedRecords.includes(index);
+
+              return (
+                <button
+                  key={record}
+                  className={`grid w-full gap-4 px-5 py-4 text-start transition-colors md:grid-cols-[1fr_150px_120px] md:items-center ${
+                    selected ? "bg-neutral-50" : "hover:bg-neutral-50"
+                  }`}
+                  onClick={() => setSelectedRecord(index)}
+                >
+                  <div className="flex items-center gap-3">
+                    <div
+                      className={`grid h-9 w-9 shrink-0 place-items-center rounded-lg text-sm font-semibold ${
+                        selected ? "bg-neutral-950 text-white" : "bg-neutral-100 text-neutral-700"
+                      }`}
+                    >
+                      {index + 1}
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-neutral-950">{record}</p>
+                      <p className="mt-1 text-xs text-neutral-500">
+                        {locale === "ar" ? "اضغط لفتح مساحة العمل" : "Click to open workspace"}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm font-semibold text-neutral-950">{record}</p>
-                    <p className="mt-1 text-xs text-neutral-500">
-                      {locale === "ar" ? "تحديث حديث وجاهز للمراجعة" : "Recently updated and ready for review"}
-                    </p>
-                  </div>
-                </div>
-                <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700">
-                  <CheckCircle2 size={13} />
-                  {c.statuses.active}
-                </span>
-                <button className="inline-flex items-center justify-start gap-1.5 text-xs font-semibold text-neutral-700 hover:text-neutral-950 md:justify-end">
-                  {locale === "ar" ? "فتح" : "Open"}
-                  <ArrowUpRight size={13} className={isArabic ? "rotate-[-90deg]" : ""} />
+                  <span
+                    className={`inline-flex w-fit items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${
+                      approved ? "bg-blue-50 text-blue-700" : "bg-emerald-50 text-emerald-700"
+                    }`}
+                  >
+                    <CheckCircle2 size={13} />
+                    {approved ? c.statuses.approved : c.statuses.active}
+                  </span>
+                  <span className="inline-flex items-center justify-start gap-1.5 text-xs font-semibold text-neutral-700 md:justify-end">
+                    {selected ? (locale === "ar" ? "مفتوح" : "Open") : locale === "ar" ? "فتح" : "Open"}
+                    <ArrowUpRight size={13} className={isArabic ? "rotate-[-90deg]" : ""} />
+                  </span>
                 </button>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
         <div className="space-y-6">
           <div className="rounded-xl border border-neutral-200 bg-white p-5 shadow-sm">
-            <h2 className="text-base font-semibold text-neutral-950">{c.sections.governance}</h2>
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h2 className="text-base font-semibold text-neutral-950">{selectedName}</h2>
+                <p className="mt-1 text-sm text-neutral-500">
+                  {locale === "ar" ? "مساحة عمل تفاعلية للعرض التجريبي" : "Interactive workspace for the client demo"}
+                </p>
+              </div>
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-neutral-100 px-2.5 py-1 text-xs font-semibold text-neutral-700">
+                <PanelRightOpen size={13} />
+                {status}
+              </span>
+            </div>
+
             <div className="mt-5 space-y-4">
               {[
-                locale === "ar" ? "صلاحيات مبنية على الدور" : "Role-based permissions",
-                locale === "ar" ? "سجل تدقيق قابل للتصدير" : "Exportable audit trail",
-                locale === "ar" ? "تدفقات موافقة متعددة المراحل" : "Multi-step approval workflows",
-              ].map((item) => (
-                <div key={item} className="flex gap-3">
-                  <CircleDot size={18} className="mt-0.5 shrink-0 text-neutral-400" />
-                  <div>
-                    <p className="text-sm font-semibold text-neutral-900">{item}</p>
-                    <p className="mt-1 text-xs leading-5 text-neutral-500">
-                      {locale === "ar"
-                        ? "مصمم لدعم الحوكمة الداخلية ومتطلبات الفرق الكبيرة."
-                        : "Designed to support internal governance and large-team controls."}
-                    </p>
+                locale === "ar" ? "مراجعة داخلية" : "Internal review",
+                locale === "ar" ? "موافقة الإدارة" : "Management approval",
+                locale === "ar" ? "تحديث العميل" : "Client update",
+              ].map((stage, index) => {
+                const complete = progress >= (index + 1) * 30 || selectedApproved;
+
+                return (
+                  <div key={stage} className="flex gap-3">
+                    <div
+                      className={`mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-full ${
+                        complete ? "bg-neutral-950 text-white" : "bg-neutral-100 text-neutral-400"
+                      }`}
+                    >
+                      {complete ? <CheckCircle2 size={14} /> : <CircleDot size={14} />}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center justify-between gap-3">
+                        <p className="text-sm font-semibold text-neutral-900">{stage}</p>
+                        <span className="text-xs text-neutral-500">
+                          {complete ? c.statuses.approved : c.statuses.pending}
+                        </span>
+                      </div>
+                      <div className="mt-2 h-2 overflow-hidden rounded-full bg-neutral-100">
+                        <div
+                          className="h-full rounded-full bg-neutral-950 transition-all"
+                          style={{ width: `${complete ? 100 : Math.max(18, progress - index * 18)}%` }}
+                        />
+                      </div>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
+            </div>
+
+            <div className="mt-5 flex flex-col gap-2 sm:flex-row">
+              <button
+                className="inline-flex items-center justify-center gap-2 rounded-lg bg-neutral-950 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-neutral-800"
+                onClick={toggleApproval}
+              >
+                <FileCheck2 size={16} />
+                {selectedApproved
+                  ? locale === "ar"
+                    ? "إلغاء الاعتماد"
+                    : "Undo approval"
+                  : locale === "ar"
+                    ? "اعتماد السجل"
+                    : "Approve record"}
+              </button>
+              <button
+                className="inline-flex items-center justify-center gap-2 rounded-lg border border-neutral-200 px-4 py-2.5 text-sm font-semibold text-neutral-700 transition-colors hover:bg-neutral-50"
+                onClick={addClientNote}
+              >
+                <MessageSquareText size={16} />
+                {locale === "ar" ? "تجهيز تحديث العميل" : "Prepare client update"}
+              </button>
+            </div>
+          </div>
+
+          <div className="rounded-xl border border-neutral-200 bg-white p-5 shadow-sm">
+            <h2 className="text-base font-semibold text-neutral-950">
+              {locale === "ar" ? "معاينة العميل" : "Client preview"}
+            </h2>
+            <div className="mt-4 rounded-lg border border-neutral-200 bg-neutral-50 p-4">
+              <div className="flex items-center gap-2 text-sm font-semibold text-neutral-900">
+                <ShieldCheck size={16} />
+                {selectedName}
+              </div>
+              <p className="mt-3 text-sm leading-6 text-neutral-600">{actionText}</p>
+              {clientNote ? (
+                <p className="mt-3 rounded-lg bg-white px-3 py-2 text-sm text-neutral-700 shadow-sm">{clientNote}</p>
+              ) : null}
             </div>
           </div>
 
@@ -109,9 +244,13 @@ export default function ModuleView({ id, locale }: ModuleViewProps) {
               </h2>
             </div>
             <p className="mt-4 text-sm leading-6 text-neutral-300">
-              {locale === "ar"
-                ? "مراجعة السجلات الثلاثة الأعلى أولوية قبل اجتماع التشغيل القادم."
-                : "Review the top three priority records before the next operating meeting."}
+              {selectedApproved
+                ? locale === "ar"
+                  ? "شارك تحديثاً مختصراً مع العميل واحفظ القرار في سجل التدقيق."
+                  : "Share a concise client update and keep the decision in the audit trail."
+                : locale === "ar"
+                  ? "اعتمد السجل أو جهز تحديث العميل قبل اجتماع التشغيل القادم."
+                  : "Approve the record or prepare the client update before the next operating meeting."}
             </p>
           </div>
         </div>

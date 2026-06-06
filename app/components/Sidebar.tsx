@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import { Menu, Search, ShieldCheck, Sparkles, X } from "lucide-react";
 import { copy, modules, type Locale, type ModuleId } from "./content";
 
@@ -22,6 +23,20 @@ export default function Sidebar({
 }: SidebarProps) {
   const c = copy[locale];
   const isArabic = locale === "ar";
+  const [query, setQuery] = useState("");
+
+  const visibleModules = useMemo(() => {
+    const normalized = query.trim().toLowerCase();
+
+    if (!normalized) {
+      return modules;
+    }
+
+    return modules.filter((module) => {
+      const label = `${module.label.en} ${module.label.ar} ${module.eyebrow.en} ${module.eyebrow.ar}`;
+      return label.toLowerCase().includes(normalized);
+    });
+  }, [query]);
 
   return (
     <>
@@ -56,9 +71,16 @@ export default function Sidebar({
         </div>
 
         <div className="space-y-3 border-b border-neutral-200 px-5 py-4">
-          <div className="flex items-center gap-2 rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2.5 text-sm text-neutral-500">
-            <Search size={15} />
-            <span className="truncate">{c.search}</span>
+          <div className="flex items-center gap-2 rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2.5 text-sm text-neutral-500 focus-within:border-neutral-400 focus-within:bg-white">
+            <Search size={15} className="shrink-0" />
+            <input
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              className="min-w-0 flex-1 bg-transparent text-sm text-neutral-800 outline-none placeholder:text-neutral-400"
+              placeholder={c.search}
+              aria-label={c.search}
+              type="search"
+            />
           </div>
           <div className="grid grid-cols-2 gap-2">
             <button
@@ -75,7 +97,7 @@ export default function Sidebar({
         </div>
 
         <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
-          {modules.map((module) => {
+          {visibleModules.map((module) => {
             const Icon = module.icon;
             const selected = active === module.id;
             return (
@@ -96,6 +118,11 @@ export default function Sidebar({
               </button>
             );
           })}
+          {visibleModules.length === 0 ? (
+            <div className="rounded-lg border border-dashed border-neutral-200 px-3 py-4 text-sm text-neutral-500">
+              {locale === "ar" ? "لا توجد وحدة مطابقة" : "No matching module"}
+            </div>
+          ) : null}
         </nav>
 
         <div className="border-t border-neutral-200 p-4">
