@@ -12,6 +12,7 @@ import { MediaGallery, Vendors, Reports, Templates, Directory } from "./componen
 
 export default function Home() {
   const [activeModule, setActiveModule] = useState("dashboard");
+
   const renderModule = () => {
     switch (activeModule) {
       case "dashboard": return <Dashboard />;
@@ -29,10 +30,13 @@ export default function Home() {
       default: return <Dashboard />;
     }
   };
+
   return (
     <div className="flex h-screen overflow-hidden bg-[#0A0A0A]">
       <Sidebar active={activeModule} onSelect={setActiveModule} />
-      <main className="flex-1 overflow-y-auto">{renderModule()}</main>
+      <main className="flex-1 overflow-y-auto">
+        {renderModule()}
+      </main>
     </div>
   );
 }
