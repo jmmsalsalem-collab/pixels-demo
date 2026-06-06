@@ -64,9 +64,13 @@ export default function AIAssistant({
       </button>
 
       <div
-        className={`fixed inset-y-0 end-0 z-50 w-full max-w-[420px] border-s border-neutral-200 bg-white shadow-2xl transition-transform duration-200 ${
-          open ? "translate-x-0" : "translate-x-full rtl:-translate-x-full"
-        }`}
+        className="fixed inset-y-0 end-0 z-50 w-full max-w-[420px] border-s border-neutral-200 bg-white shadow-2xl transition-transform duration-200"
+        aria-hidden={!open}
+        style={{
+          transform: open ? "translateX(0)" : locale === "ar" ? "translateX(-100%)" : "translateX(100%)",
+          opacity: open ? 1 : 0,
+          pointerEvents: open ? "auto" : "none",
+        }}
       >
         <div className="flex h-full flex-col">
           <div className="border-b border-neutral-200 p-4">
